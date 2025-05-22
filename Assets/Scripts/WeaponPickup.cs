@@ -2,37 +2,29 @@ using UnityEngine;
 
 public class WeaponPickup : MonoBehaviour
 {
-    private bool canPickup = false;
-    private PlayerCombat player;
-
-    void Update()
-    {
-        if (canPickup && Input.GetKeyDown(KeyCode.E))
-        {
-            Weapon weapon = GetComponent<Weapon>();
-            if (weapon != null && player != null)
-            {
-                player.EquipWeapon(weapon);
-                gameObject.SetActive(false); // Desactiva el pickup
-            }
-        }
-    }
+    public Weapon weaponData;
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            canPickup = true;
-            player = other.GetComponent<PlayerCombat>();
-        }
-    }
+        if (weaponData == null) return;
 
-    void OnTriggerExit2D(Collider2D other)
-    {
         if (other.CompareTag("Player"))
         {
-            canPickup = false;
-            player = null;
+            PlayerCombat player = other.GetComponent<PlayerCombat>();
+            if (player != null)
+            {
+                player.EquipWeapon(Instantiate(weaponData));
+                Destroy(gameObject);
+            }
+        }
+        else if (other.CompareTag("Enemy"))
+        {
+            EnemyCombat enemy = other.GetComponent<EnemyCombat>();
+            if (enemy != null && !enemy.hasWeapon)
+            {
+                enemy.EquippedWeaponFromPickup(Instantiate(weaponData));
+                Destroy(gameObject);
+            }
         }
     }
 }

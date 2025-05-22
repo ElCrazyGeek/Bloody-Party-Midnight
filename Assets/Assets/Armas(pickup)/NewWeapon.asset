@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66764853c23d55640a7ecc5859bf7af9, type: 3}
+  m_Name: NewWeapon
+  m_EditorClassIdentifier: 
+  weaponName: 
+  damage: 1
+  isSharp: 0
+  throwForce: 10
+  projectilePrefab: {fileID: 0}
+  pickupPrefab: {fileID: 4892543365813364188, guid: e732c7f633941e946955c1449685b8ae, type: 3}

@@ -5,10 +5,8 @@ public class PlayerCombat : MonoBehaviour
     public float attackRange = 1f;
     public LayerMask enemyLayer;
     public Transform attackPoint;
-    public Transform weaponHolder;
 
     private Weapon currentWeapon;
-    private GameObject currentVisual;
 
     void Update()
     {
@@ -17,7 +15,7 @@ public class PlayerCombat : MonoBehaviour
             PerformAttack();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q)) // Lanzar arma
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             ThrowWeapon();
         }
@@ -33,12 +31,7 @@ public class PlayerCombat : MonoBehaviour
             if (eh != null)
             {
                 int damage = currentWeapon != null ? currentWeapon.damage : 1;
-                bool isSharp = currentWeapon != null && currentWeapon.isSharp;
-
-                if (eh.IsVulnerable() || (isSharp && eh.IsBackStab(transform)))
-                    eh.Execute();
-                else
-                    eh.TakeDamage(damage);
+                eh.TakeDamage(damage);
             }
         }
     }
@@ -46,34 +39,36 @@ public class PlayerCombat : MonoBehaviour
     public void EquipWeapon(Weapon weapon)
     {
         currentWeapon = weapon;
-
-        if (currentVisual) Destroy(currentVisual);
-
-        if (weapon.visualPrefab && weaponHolder)
-        {
-            currentVisual = Instantiate(weapon.visualPrefab, weaponHolder);
-            currentVisual.transform.localPosition = Vector3.zero;
-            currentVisual.transform.localRotation = Quaternion.identity;
-        }
+        Debug.Log("Arma equipada: " + weapon.weaponName);
     }
 
     void ThrowWeapon()
     {
-        if (currentWeapon == null) return;
+        if (currentWeapon == null || currentWeapon.projectilePrefab == null) return;
 
-       GameObject thrown = Instantiate(currentWeapon.projectilePrefab, attackPoint.position, transform.rotation);
-Rigidbody2D rb = thrown.GetComponent<Rigidbody2D>();
-if (rb != null)
-{
-    rb.linearVelocity = transform.up * currentWeapon.throwForce;
-}
+        // Calcular dirección hacia el mouse
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mouseWorldPos - attackPoint.position).normalized;
 
-ThrownWeapon tw = thrown.GetComponent<ThrownWeapon>();
-if (tw != null)
-{
-    tw.targetTag = "Enemy"; // solo puede golpear enemigos
-}
+        // Instanciar el arma lanzada
+        GameObject thrown = Instantiate(currentWeapon.projectilePrefab, attackPoint.position, Quaternion.identity);
+        Rigidbody2D rb = thrown.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = direction * currentWeapon.throwForce;
+        }
 
+        // Pasar propiedades al objeto lanzado
+        ThrownWeapon tw = thrown.GetComponent<ThrownWeapon>();
+        if (tw != null)
+        {
+            tw.targetTag = "Enemy";
+            tw.damage = currentWeapon.damage;
+            tw.isSharp = currentWeapon.isSharp;
+            tw.pickupPrefab = currentWeapon.pickupPrefab;
+        }
+
+        currentWeapon = null;
     }
 
     public bool TieneArma()

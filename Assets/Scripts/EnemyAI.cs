@@ -46,7 +46,7 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (health == null || health.IsVulnerable()) return;
+       if (health == null) return;
 
         switch (currentState)
         {

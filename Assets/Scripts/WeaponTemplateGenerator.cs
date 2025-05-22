@@ -1,3 +1,4 @@
+/*
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -151,3 +152,4 @@ public void VerificarReferencias()
 }
 
 }
+*/

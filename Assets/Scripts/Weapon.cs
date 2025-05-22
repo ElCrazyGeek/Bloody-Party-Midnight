@@ -1,13 +1,12 @@
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+[CreateAssetMenu(fileName = "NewWeapon", menuName = "Armas/Weapon")]
+public class Weapon : ScriptableObject
 {
-    public GameObject visualPrefab;
-public GameObject projectilePrefab;
-public int damage = 1;
-public bool isSharp = false;
-public float throwForce = 8f;
-public GameObject pickupPrefab; // ← aquí
-
-
+    public string weaponName;
+    public int damage = 1;
+    public bool isSharp = false;
+    public float throwForce = 10f;
+    public GameObject projectilePrefab; // solo para la pistola
+    public GameObject pickupPrefab;     // objeto que aparece al morir o lanzar
 }

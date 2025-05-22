@@ -2,45 +2,48 @@ using UnityEngine;
 
 public class ThrownWeapon : MonoBehaviour
 {
-    public int damage = 2;
+    public string targetTag = "Enemy";
+    public int damage = 1;
     public bool isSharp = false;
-    public float destroyDelay = 0.05f;
-    public LayerMask targetLayers;
-    public string targetTag = "Enemy"; // por defecto
-    public GameObject pickupPrefab; // Lo que dejará en el suelo al impactar
-    private bool canHit = false;    // Permite impacto tras un breve delay
-    private float activationDelay = 0.1f; // Tiempo antes de activar colisiones
-    private float timer = 0f;
-
-
+    public float knockbackForce = 10f;
+    public GameObject pickupPrefab;
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!canHit) return;
-
         if (other.CompareTag(targetTag))
         {
-            // dañar al enemigo
             EnemyHealth eh = other.GetComponent<EnemyHealth>();
             if (eh != null)
             {
-                if (isSharp && eh.IsBackStab(transform))
-                    eh.Execute();
+                if (isSharp)
+                {
+                    eh.TakeDamage(damage * 2); // más daño si es filosa
+                }
                 else
+                {
                     eh.TakeDamage(damage);
+                }
+
+                // Knockback físico (opcional)
+                Rigidbody2D enemyRb = other.GetComponent<Rigidbody2D>();
+                if (enemyRb != null)
+                {
+                    Vector2 direction = (other.transform.position - transform.position).normalized;
+                    enemyRb.AddForce(direction * knockbackForce, ForceMode2D.Impulse);
+                }
             }
 
-            // luego dejar pickup y destruir este objeto
-           Instantiate(pickupPrefab, transform.position, Quaternion.identity);
-
+            Destroy(gameObject);
+        }
+        else if (!other.isTrigger)
+        {
+            // Si choca con otra cosa, destruye el proyectil
             Destroy(gameObject);
         }
     }
     void Update()
 {
-    timer += Time.deltaTime;
-    if (timer >= activationDelay)
-        canHit = true;
+    transform.Rotate(Vector3.forward * 720f * Time.deltaTime); // Rota el sprite
 }
 
 }

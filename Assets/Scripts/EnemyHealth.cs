@@ -2,49 +2,62 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int maxHealth = 2;
+    public int maxHealth = 3;
     private int currentHealth;
-    private bool isDown = false;
+
+    private EnemyCombat combat;
 
     void Start()
     {
         currentHealth = maxHealth;
+        combat = GetComponent<EnemyCombat>();
     }
 
     public void TakeDamage(int damage)
     {
-        if (isDown) return;
-
         currentHealth -= damage;
+        Debug.Log("Enemigo dañado. Vida: " + currentHealth);
 
         if (currentHealth <= 0)
         {
-            isDown = true;
-            Debug.Log(name + " cayó al suelo");
+            Die();
         }
     }
 
-    public void Execute()
+   void Die()
+{
+    if (combat != null && combat.hasWeapon && combat.equippedWeapon != null)
     {
-        if (!isDown) return;
-
-        Debug.Log(name + " ejecutado");
-        Destroy(gameObject);
+        GameObject pickup = combat.equippedWeapon.pickupPrefab;
+        if (pickup != null)
+        {
+            Instantiate(pickup, transform.position, Quaternion.identity);
+        }
     }
 
-    public bool IsVulnerable()
+    Destroy(gameObject);
+}
+
+
+    void DropWeapon(Weapon weaponToDrop)
     {
-        return isDown;
-    }
+        // Asegúrate de tener un prefab de pickup que tenga el script WeaponPickup
+        GameObject pickupPrefab = weaponToDrop.pickupPrefab;
 
-    public bool IsBackStab(Transform attacker)
-    {
-        Vector2 toAttacker = (attacker.position - transform.position).normalized;
-        Vector2 forward = transform.up;
+        if (pickupPrefab != null)
+        {
+            GameObject dropped = Instantiate(pickupPrefab, transform.position, Quaternion.identity);
 
-        float angle = Vector2.Angle(forward, toAttacker);
-
-        // Si el atacante está detrás del enemigo (±60° por la espalda)
-        return angle > 120f;
+            // Asignar el arma al pickup recién instanciado
+            WeaponPickup wp = dropped.GetComponent<WeaponPickup>();
+            if (wp != null)
+            {
+                wp.weaponData = weaponToDrop;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No se ha asignado el prefab de pickup para el arma: " + weaponToDrop.name);
+        }
     }
 }
